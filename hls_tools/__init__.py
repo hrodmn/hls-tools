@@ -3,7 +3,7 @@ __version__ = "0.0.1"
 
 import os
 from datetime import datetime
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import pystac
 import pystac_client
@@ -77,7 +77,8 @@ def translate_asset_keys(
         assert band_dict
 
         for original_band, new_band in band_dict.items():
-            item.assets[new_band] = item.assets.pop(original_band)
+            if item.assets.get(original_band):
+                item.assets[new_band] = item.assets.pop(original_band)
 
     return hls_stac_items
 
@@ -85,23 +86,23 @@ def translate_asset_keys(
 def load_hls_stack(
     bbox: Tuple[float, float, float, float],
     crs: rasterio.crs.CRS,
-    start_date: datetime,
-    end_date: datetime,
+    start_date: Union[datetime, None] = None,
+    end_date: Union[datetime, None] = None,
+    stac_items: Union[pystac.ItemCollection, None] = None,
     bands: List[str] = ALL_BANDS,
     resolution: float = 30,
 ) -> xr.DataArray:
-    assert os.path.exists(
-        NETRC_PATH
-    ), "you need to add your NASA Earthdata credentials to ~/.netrc!"
-
     for band in bands:
         assert (
             band in ALL_BANDS
         ), f"{band} not available, please chose from one of " + ", ".join(ALL_BANDS)
 
-    stac_items = query_hls_catalog(
-        bbox=bbox, crs=crs, start_date=start_date, end_date=end_date
-    )
+    if not stac_items:
+        assert start_date, "you must provide a datetime for start_date"
+        assert end_date, "you must provide a datetime for end_date"
+        stac_items = query_hls_catalog(
+            bbox=bbox, crs=crs, start_date=start_date, end_date=end_date
+        )
 
     hls_stack = stackstac.stack(
         items=translate_asset_keys(stac_items),
