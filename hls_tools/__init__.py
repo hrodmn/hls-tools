@@ -7,10 +7,10 @@ from typing import List, Tuple
 
 import pystac
 import pystac_client
+import rasterio.crs
 import stackstac
 import xarray as xr
 from rasterio import warp
-from rasterio.crs import CRS
 
 from .constants import (
     CMR_STAC_URL,
@@ -22,7 +22,7 @@ from .constants import (
 )
 
 ALL_BANDS = [band.value for band in list(BandNames)]
-EPSG_4326 = CRS.from_epsg(4326)
+EPSG_4326 = rasterio.crs.CRS.from_epsg(4326)
 
 # TODO: make these safe for windows
 NETRC_PATH = os.path.expanduser("~/.netrc")
@@ -44,6 +44,27 @@ def flatten(x: xr.DataArray, dim: str = "time") -> xr.DataArray:
     return x
 
 
+def query_hls_catalog(
+    bbox: Tuple[float, float, float, float],
+    crs: rasterio.crs.CRS,
+    start_date: datetime,
+    end_date: datetime,
+) -> pystac.ItemCollection:
+    catalog = pystac_client.Client.open(CMR_STAC_URL)
+
+    bbox_4326 = warp.transform_bounds(
+        crs,
+        EPSG_4326,
+        *bbox,
+    )
+
+    return catalog.search(
+        collections=[CollectionIDs.LANDSAT, CollectionIDs.SENTINEL],
+        bbox=bbox_4326,
+        datetime=[start_date, end_date],
+    ).item_collection()
+
+
 def translate_asset_keys(
     hls_stac_items: pystac.ItemCollection,
 ) -> pystac.ItemCollection:
@@ -63,7 +84,7 @@ def translate_asset_keys(
 
 def load_hls_stack(
     bbox: Tuple[float, float, float, float],
-    crs: CRS,
+    crs: rasterio.crs.CRS,
     start_date: datetime,
     end_date: datetime,
     bands: List[str] = ALL_BANDS,
@@ -78,19 +99,9 @@ def load_hls_stack(
             band in ALL_BANDS
         ), f"{band} not available, please chose from one of " + ", ".join(ALL_BANDS)
 
-    catalog = pystac_client.Client.open(CMR_STAC_URL)
-
-    bbox_4326 = warp.transform_bounds(
-        src_crs=crs,
-        dst_crs=EPSG_4326,
-        *bbox,
+    stac_items = query_hls_catalog(
+        bbox=bbox, crs=crs, start_date=start_date, end_date=end_date
     )
-
-    stac_items = catalog.search(
-        collections=[CollectionIDs.LANDSAT, CollectionIDs.SENTINEL],
-        bbox=bbox_4326,
-        datetime=[start_date, end_date],
-    ).item_collection()
 
     hls_stack = stackstac.stack(
         items=translate_asset_keys(stac_items),

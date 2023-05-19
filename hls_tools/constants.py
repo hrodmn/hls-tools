@@ -90,6 +90,10 @@ BAND_CROSSWALK = {
         BandCodes.B09.value: BandNames.CIRRUS.value,
         BandCodes.B10.value: BandNames.THERMAL_INFRARED_1.value,
         BandCodes.B11.value: BandNames.THERMAL_INFRARED_2.value,
+        BandCodes.SAA.value: BandNames.SAA.value,
+        BandCodes.SZA.value: BandNames.SZA.value,
+        BandCodes.VAA.value: BandNames.VAA.value,
+        BandCodes.VZA.value: BandNames.VZA.value,
     },
     CollectionIDs.SENTINEL: {
         BandCodes.B01.value: BandNames.COASTAL_AEROSOL.value,
@@ -105,6 +109,10 @@ BAND_CROSSWALK = {
         BandCodes.B10.value: BandNames.CIRRUS.value,
         BandCodes.B11.value: BandNames.SWIR_1.value,
         BandCodes.B12.value: BandNames.SWIR_2.value,
+        BandCodes.SAA.value: BandNames.SAA.value,
+        BandCodes.SZA.value: BandNames.SZA.value,
+        BandCodes.VAA.value: BandNames.VAA.value,
+        BandCodes.VZA.value: BandNames.VZA.value,
     },
 }
 
