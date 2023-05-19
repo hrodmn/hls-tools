@@ -26,6 +26,7 @@ from pathlib import Path
 
 import pystac
 import rasterio.crs
+import xarray as xr
 
 import hls_tools
 
@@ -36,6 +37,7 @@ END_DATE = datetime(year=2022, month=7, day=5)
 TEST_ITEMS = pystac.ItemCollection.from_file(
     str(Path(__file__).parent / "test_item_collection.json")
 )
+RESOLUTION = 30
 
 
 def test_query_hls_catalog():
@@ -53,6 +55,32 @@ def test_translate_asset_keys():
     translated = hls_tools.translate_asset_keys(TEST_ITEMS)
 
     for item in translated:
-        for asset_key in item.assets.keys():
-            if asset_key in list(hls_tools.BandNames):
-                assert asset_key in hls_tools.ALL_BANDS
+        for key, asset in item.assets.items():
+            if asset.href.endswith(".tif"):
+                assert key in hls_tools.ALL_BANDS
+
+    translated_again = hls_tools.translate_asset_keys(translated)
+    assert translated_again == translated
+
+
+def test_load_hls_stack():
+    stack_all_bands = hls_tools.load_hls_stack(
+        bbox=BBOX,
+        crs=CRS,
+        stac_items=hls_tools.translate_asset_keys(TEST_ITEMS),
+        resolution=RESOLUTION,
+    )
+
+    assert isinstance(stack_all_bands, xr.DataArray)
+
+    assert len(stack_all_bands.time.values) == 4
+
+    stack_some_bands = hls_tools.load_hls_stack(
+        bbox=BBOX,
+        crs=CRS,
+        stac_items=hls_tools.translate_asset_keys(TEST_ITEMS),
+        bands=hls_tools.ALL_BANDS[:2],
+        resolution=RESOLUTION,
+    )
+
+    assert len(stack_some_bands.band.values) == 2
