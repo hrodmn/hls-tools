@@ -3,15 +3,19 @@ Python package to help work with the Harmonized Landsat Sentinel 2 remote sensin
 
 ## Development
 
+```sh
+git clone https://github.com/hrodmn/hls-tools.git
+cd hls-tools
+```
+
 Create a virtual environment
 ```sh
 python3 -m venv env
 source env/bin/activate
 ```
 
+Install test/dev dependencies
 ```sh
-git clone https://github.com/hrodmn/water_quality.git
-cd water_quality
 pip install -e .["test","dev"]
 ```
 
