@@ -1,5 +1,5 @@
 """hls-tools: tools for working with the Harmonized Landsat Sentinel 2 dataset"""
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 import os
 from datetime import datetime
@@ -135,7 +135,7 @@ def mask_out_clouds(hls_stack: xr.DataArray) -> xr.DataArray:
     ]:
         is_cloud_or_shadow |= FmaskBitValues.YES << field
 
-    fmask = hls_stack.sel(band=BandNames.FMASK).astype("uint16")
+    fmask = hls_stack.sel(band=BandNames.FMASK.value).astype("uint16")
     clouds_and_shadows = fmask & is_cloud_or_shadow
 
     return hls_stack.where(clouds_and_shadows == 0)
@@ -144,7 +144,7 @@ def mask_out_clouds(hls_stack: xr.DataArray) -> xr.DataArray:
 def mask_to_water(hls_stack: xr.DataArray) -> xr.DataArray:
     is_water = FmaskBitValues.YES << FmaskBitFields.WATER
 
-    fmask = hls_stack.sel(band=BandNames.FMASK).astype("uint16")
+    fmask = hls_stack.sel(band=BandNames.FMASK.value).astype("uint16")
     water = fmask & is_water
 
     return hls_stack.where(water != 0)

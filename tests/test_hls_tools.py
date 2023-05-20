@@ -84,3 +84,16 @@ def test_load_hls_stack():
     )
 
     assert len(stack_some_bands.band.values) == 2
+
+
+def test_mask_out_clouds():
+    stack_all_bands = hls_tools.load_hls_stack(
+        bbox=BBOX,
+        crs=CRS,
+        stac_items=hls_tools.translate_asset_keys(TEST_ITEMS),
+        resolution=RESOLUTION,
+    )
+
+    masked = hls_tools.mask_out_clouds(stack_all_bands)
+
+    assert isinstance(masked, xr.DataArray)
