@@ -1,5 +1,5 @@
 """hls-tools: tools for working with the Harmonized Landsat Sentinel 2 dataset"""
-__version__ = "0.0.1a"
+__version__ = "0.0.2"
 
 import os
 from datetime import datetime
