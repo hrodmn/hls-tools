@@ -1,5 +1,11 @@
 # hls-tools
-Python package to help work with the Harmonized Landsat Sentinel 2 remote sensing dataset.
+Python package with convenience functions for accessing and loading the Harmonized Landsat Sentinel 2 remote sensing dataset into `xarray.DataArray` format.
+
+## Installation
+You can install the package from pypi using pip:
+```sh 
+pip install hls_tools
+```
 
 ## Development
 
